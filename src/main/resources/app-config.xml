@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+    <context:property-placeholder location="classpath:database.properties"/>
+
+    <!-- Database Information -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan" value="com.smarthouse.pojo"/>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQL95Dialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <jpa:repositories base-package="com.smarthouse.repository"/>
+
+    <!-- Creator database for tests -->
+    <bean id="dbRecreator" class="com.smarthouse.util.DbRecreator">
+        <constructor-arg value="${jdbc.urlPostgres}"/>
+        <constructor-arg value="${jdbc.url}"/>
+        <constructor-arg value="${jdbc.username}"/>
+        <constructor-arg value="${jdbc.password}"/>
+        <constructor-arg value="${jdbc.nameSQLFile}"/>
+    </bean>
+
+    <!-- ShopManager facade -->
+    <bean id="shopManager" class="com.smarthouse.service.ShopManager">
+        <constructor-arg ref="productCardDao"/>
+        <constructor-arg ref="categoryDao"/>
+        <constructor-arg ref="customerDao"/>
+        <constructor-arg ref="orderMainDao"/>
+        <constructor-arg ref="orderItemDao"/>
+        <constructor-arg ref="visualizationDao"/>
+        <constructor-arg ref="attributeValueDao"/>
+    </bean>
+
+</beans>

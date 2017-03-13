@@ -1,0 +1,1 @@
+Visualization class respond where saved images and other visualisation components. And have two fields: int type of fields and String url where is situated this visual file.

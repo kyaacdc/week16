@@ -1,0 +1,1 @@
+AttributeName class - saving names of product attributes. And have only one String field named "name"

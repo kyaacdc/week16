@@ -1,0 +1,1 @@
+IderOrder is transitional class that modelling in database amount and total price ordered products before our receive this order. And have two fields: int amount and int total price.

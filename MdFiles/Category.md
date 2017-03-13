@@ -1,0 +1,1 @@
+Category class needs for select some products by different categories. And also have three fields: int id that primary key, String name category and String description of product

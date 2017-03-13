@@ -1,0 +1,1 @@
+AttributeValue class saving all values of product attributes. And have two fields: String value and int id - primary key

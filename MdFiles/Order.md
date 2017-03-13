@@ -1,0 +1,1 @@
+Order class is saving order address and order status. And have String field with String address of customer and have int field for show status of order (sent, not sent, in process)

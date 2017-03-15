@@ -2,7 +2,6 @@ package com.smarthouse.service;
 
 import com.smarthouse.repository.*;
 import com.smarthouse.pojo.*;
-import com.smarthouse.util.DbRecreator;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -12,13 +11,13 @@ import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import java.util.*;
 
-import static com.smarthouse.util.enums.EnumProductSorter.*;
-import static com.smarthouse.util.enums.EnumSearcher.*;
+import static com.smarthouse.service.util.enums.EnumProductSorter.*;
+import static com.smarthouse.service.util.enums.EnumSearcher.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("file:src/main/resources/app-config.xml")
+@ContextConfiguration("/app-config.xml")
 public class ShopManagerTest {
 
     @Resource
@@ -48,32 +47,30 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void isProductAvailable() throws Exception {
+    public void mustShowCorrectProductAvailability() throws Exception {
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
 
         ProductCard productCard = new ProductCard("888", "2name", 2222, 34, 45, 4, "xxx", category);
 
-        //Record to DB
+        //Save to DB
         productCard = productCardDao.save(productCard);
         assertTrue(shopManager.isProductAvailable(productCard.getSku()));
-        productCardDao.delete(productCard.getSku());
-        categoryDao.delete(category.getId());
     }
 
     @Test
-    public void makeOrderTest() {
+    public void shouldMakeCorrectOrder() {
         Category category = categoryDao.save(new Category("desc", "catname", null));
         productCardDao.save(new ProductCard("bell", "bell signal", 1234, 100, 1, 1, "bell desc", category));
 
-        shopManager.createOrder("kya1@bk.ru", "Yuriy", "0503337178", "my address", 3, "bell");
+        shopManager.createOrder("kya1@bk.ru", "23$Yuriy", "0503337178", "my address", 3, "bell");
 
         assertThat(productCardDao.findBySku("bell").getAmount(), is(equalTo(100)));
 
     }
 
     @Test(expected = NoResultException.class)
-    public void makeOrderTestExc() {
+    public void shouldThrowExceptionWhenMakeOrder() {
         Category category = categoryDao.save(new Category("desc", "catname", null));
         productCardDao.save(new ProductCard("bell", "bell signal", 1234, 100, 1, 1, "bell desc", category));
 
@@ -81,7 +78,7 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void completeOrderTest() {
+    public void shouldCheckCorrectionOfCompleteOrder() {
 
         Category category = categoryDao.save(new Category("desc", "catname", null));
         productCardDao.save(new ProductCard("bell", "bell signal", 1234, 100, 1, 1, "bell desc", category));
@@ -114,19 +111,18 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void validateOrderTest() {
+    public void shouldCheckRightValidationOfOrderCreation() {
         Category category = categoryDao.save(new Category("desc", "catname", null));
         productCardDao.save(new ProductCard("bell", "bell signal", 1234, 100, 1, 1, "bell desc", category));
 
         shopManager.createOrder("kya@bk.ru", "Yuriy", "0503337178", "my address", 3, "bell");
 
         assertThat(productCardDao.findBySku("bell").getAmount(), is(equalTo(100)));
-
         assertThat(shopManager.validateOrder("kya@bk.ru"), is(true));
     }
 
     @Test
-    public void getOrdersByCustomerTest() {
+    public void shouldGetCorrectListOrderedByCustomer() {
         Customer customer = new Customer("anniya@bk.ru", "Yuriy", false, "7585885");
         customerDao.save(customer);
 
@@ -134,7 +130,7 @@ public class ShopManagerTest {
         OrderMain orderMain2 = new OrderMain("2OrderAddress", 1, customer);
         OrderMain orderMain3 = new OrderMain("3OrderAddress", 1, customer);
 
-        //Record to DB
+        //Save to DB
         orderMainDao.save(orderMain1);
         orderMainDao.save(orderMain2);
         orderMainDao.save(orderMain3);
@@ -150,7 +146,7 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void getItemOrdersByOrderMainTest() {
+    public void shouldGetRealItemOrdersByOrderMain() {
         Category category = categoryDao.save(new Category("desc", "name", null));
         ProductCard productCard = productCardDao.save(new ProductCard("111", "name", 123, 1, 1, 1, "decs", category));
         Customer customer = customerDao.save(new Customer("anniya@bk.ru", "Yuriy", false, "7585885"));
@@ -159,7 +155,7 @@ public class ShopManagerTest {
         OrderItem orderItem2 = orderItemDao.save(new OrderItem(6, 555, productCard, orderMain));
         OrderItem orderItem3 = orderItemDao.save(new OrderItem(7, 555, productCard, orderMain));
 
-        //Record to DB
+        //Save to DB
         orderItemDao.save(orderItem1);
         orderItemDao.save(orderItem2);
         orderItemDao.save(orderItem3);
@@ -175,7 +171,7 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void getItemOrdersByProdCardTest() {
+    public void shouldCorrectGetItemOrdersByProdCard() {
         Category category = categoryDao.save(new Category("desc", "name", null));
         ProductCard productCard = productCardDao.save(new ProductCard("111", "name", 123, 1, 1, 1, "decs", category));
         Customer customer = customerDao.save(new Customer("anniya@bk.ru", "Yuriy", false, "7585885"));
@@ -184,7 +180,7 @@ public class ShopManagerTest {
         OrderItem orderItem2 = orderItemDao.save(new OrderItem(6, 555, productCard, orderMain));
         OrderItem orderItem3 = orderItemDao.save(new OrderItem(7, 555, productCard, orderMain));
 
-        //Record to DB
+        //Save to DB
         orderItemDao.save(orderItem1);
         orderItemDao.save(orderItem2);
         orderItemDao.save(orderItem3);
@@ -200,7 +196,7 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void checkCorrectionOfFindAllProductsByDifferCriteria() throws Exception {
+    public void shouldCheckCorrectionOfSearchAllProductsByDifferCriteria() throws Exception {
 
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
@@ -208,27 +204,22 @@ public class ShopManagerTest {
         ProductCard productCard1 = new ProductCard("888", "name111", 2222, 34, 45, 4, "xxx", category);
         ProductCard productCard2 = new ProductCard("999", "name111", 2222, 34, 45, 4, "xxx", category);
 
-        //Record to DB
+        //Save to DB
         productCardDao.save(productCard1);
         productCardDao.save(productCard2);
 
-        Set<ProductCard> allProducts = shopManager.findProductsByCriteriaInAllPlaces("Name111");
+        Set<ProductCard> allProducts = shopManager.findAllProductsByCriteria("Name111");
         assertThat(allProducts.size(), is(equalTo(2)));
 
-        allProducts = shopManager.findProductsByCriteriaInAllPlaces("Desc");
+        allProducts = shopManager.findAllProductsByCriteria("Desc");
         assertThat(allProducts.size(), is(equalTo(2)));
 
-        allProducts = shopManager.findProductsByCriteriaInAllPlaces("nAme");
+        allProducts = shopManager.findAllProductsByCriteria("nAme");
         assertThat(allProducts.size(), is(equalTo(2)));
-
-        productCardDao.delete("888");
-        productCardDao.delete("999");
-        categoryDao.delete(category.getId());
     }
 
-
     @Test
-    public void checkCorrectionOfFindAllProductsByCriteriaAndPlaceForFind() throws Exception {
+    public void shouldCheckCorrectionOfSearchWithFindByName() throws Exception {
 
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
@@ -236,7 +227,58 @@ public class ShopManagerTest {
         ProductCard productCard1 = new ProductCard("888", "name111", 2222, 34, 45, 4, "xxx", category);
         ProductCard productCard2 = new ProductCard("999", "name111", 2222, 34, 45, 4, "xxx", category);
 
-        //Record to DB
+        //Save in DB
+        productCardDao.save(productCard1);
+        productCardDao.save(productCard2);
+
+        Set<ProductCard> allProducts = shopManager.findProductsInColumn("naMe111", FIND_BY_NAME);
+        assertThat(allProducts.size(), is(equalTo(2)));
+    }
+
+    @Test
+    public void shouldCheckCorrectionOfSearchByProductDescription() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        ProductCard productCard1 = new ProductCard("888", "name111", 2222, 34, 45, 4, "xxx", category);
+        ProductCard productCard2 = new ProductCard("999", "name111", 2222, 34, 45, 4, "xxx", category);
+
+        //Save in DB
+        productCardDao.save(productCard1);
+        productCardDao.save(productCard2);
+
+        Set<ProductCard> allProducts = shopManager.findProductsInColumn("xXx", FIND_IN_PROD_DESC);
+        assertThat(allProducts.size(), is(equalTo(2)));
+    }
+
+    @Test
+    public void shouldCheckCorrectionOfSearchByCategoryDescription() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        ProductCard productCard1 = new ProductCard("888", "name111", 2222, 34, 45, 4, "xxx", category);
+        ProductCard productCard2 = new ProductCard("999", "name111", 2222, 34, 45, 4, "xxx", category);
+
+        //Save in DB
+        productCardDao.save(productCard1);
+        productCardDao.save(productCard2);
+
+        Set<ProductCard> allProducts = shopManager.findProductsInColumn("DESC", FIND_IN_CATEGORY_DESC);
+        assertThat(allProducts.size(), is(equalTo(2)));
+    }
+
+    @Test
+    public void shouldCheckCorrectionOfSearchAllProductsByCriteriaAndSituatedPlace() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        ProductCard productCard1 = new ProductCard("888", "name111", 2222, 34, 45, 4, "xxx", category);
+        ProductCard productCard2 = new ProductCard("999", "name111", 2222, 34, 45, 4, "xxx", category);
+
+        //Save in DB
         productCardDao.save(productCard1);
         productCardDao.save(productCard2);
 
@@ -248,14 +290,10 @@ public class ShopManagerTest {
         assertThat(allProducts.size(), is(equalTo(2)));
         allProducts = shopManager.findProductsInColumn("naMe", FIND_IN_CATEGORY_NAME);
         assertThat(allProducts.size(), is(equalTo(2)));
-
-        productCardDao.delete("888");
-        productCardDao.delete("999");
-        categoryDao.delete(category.getId());
     }
 
     @Test
-    public void getRootCategory() throws Exception {
+    public void shouldGetCorrectRootCategory() throws Exception {
 
         Category category = new Category("desc", "name", null);
 
@@ -266,25 +304,20 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void getSubCategories() throws Exception {
+    public void shouldGetExistedSubCategories() throws Exception {
 
         Category category1 = new Category("desc", "name", null);
         category1 = categoryDao.save(category1);
         Category category2 = new Category("desc", "name", category1);
-        category2 = categoryDao.save(category2);
+        categoryDao.save(category2);
 
         List<Category> list = shopManager.getSubCategories(categoryDao.findById(category1.getId()));
         assertThat(list.get(0).getName(), oneOf("catname1", "catname31", "name"));
-        assertThat(list.get(0).getName(), is(notNullValue()));
-        assertThat(list.get(0).getName(), isA(String.class));
         assertThat(list.get(0).getId(), isA(Integer.class));
-
-        categoryDao.delete(category2.getId());
-        categoryDao.delete(category1.getId());
     }
 
     @Test
-    public void getProductCardsByCategory() throws Exception {
+    public void shouldGetCorrectProductCardsByCategory() throws Exception {
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
 
@@ -292,7 +325,7 @@ public class ShopManagerTest {
         ProductCard productCard2 = new ProductCard("999", "3name", 3333, 34, 45, 4, "xxx", category);
         ProductCard productCard3 = new ProductCard("000", "4name", 444, 34, 45, 4, "xxx", category);
 
-        //Record to DB
+        //Save in DB
         productCard1 = productCardDao.save(productCard1);
         productCard2 = productCardDao.save(productCard2);
         productCard3 = productCardDao.save(productCard3);
@@ -305,22 +338,16 @@ public class ShopManagerTest {
         assertThat(productCards, is(notNullValue()));
         assertThat(productCards, is(anything()));
         assertThat(productCards.get(1), isA(ProductCard.class));
-
-        productCardDao.delete("888");
-        productCardDao.delete("999");
-        productCardDao.delete("000");
-
-        categoryDao.delete(category.getId());
-
     }
 
     @Test
-    public void getVisualListByProduct() throws Exception {
+    public void shouldCheckOfGetVisualListByProduct() throws Exception {
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
         ProductCard productCard = new ProductCard("222", "2name", 2222, 34, 45, 4, "xxx", category);
         productCard = productCardDao.save(productCard);
-        //Record to DB
+
+        //Save in DB
         Visualization visualization1 = new Visualization(2, "1url", productCard);
         Visualization visualization2 = new Visualization(4, "2url", productCard);
         Visualization visualization3 = new Visualization(6, "3url", productCard);
@@ -340,7 +367,7 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void getAttrValuesByProduct() throws Exception {
+    public void mustCorrectGetAttrValuesByProduct() throws Exception {
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
         ProductCard productCard = new ProductCard("222", "2name", 2222, 34, 45, 4, "xxx", category);
@@ -365,7 +392,7 @@ public class ShopManagerTest {
     }
 
     @Test
-    public void getAttrValuesByName() throws Exception {
+    public void shouldGetRealAttrValuesByName() throws Exception {
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
         ProductCard productCard = new ProductCard("222", "2name", 2222, 34, 45, 4, "xxx", category);
@@ -389,9 +416,8 @@ public class ShopManagerTest {
         });
     }
 
-
     @Test
-    public void sortByPopularityTest() throws Exception {
+    public void shouldRightSortProductsByPopularity() throws Exception {
 
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
@@ -413,27 +439,124 @@ public class ShopManagerTest {
         assertThat(productCards.get(3).getLikes(), is(equalTo(4)));
         for(ProductCard p: productCards)
             assertThat(p.getLikes(), oneOf(1,2,3,4));
-
-        productCards = shopManager.sortProductCard(category, SORT_BY_POPULARITY);
-        assertThat(productCards.get(2).getLikes(), is(equalTo(3)));
-        for(ProductCard p: productCards)
-            assertThat(p.getLikes(), oneOf(1,2,3));
-
-        productCards = shopManager.sortProductCard(null, SORT_BY_UNPOPULARITY);
-        assertThat(productCards.get(1).getDislikes(), is(equalTo(2)));
-        for(ProductCard p: productCards)
-            assertThat(p.getDislikes(), oneOf(1,2,3,4));
-
-        productCards = shopManager.sortProductCard(category, SORT_BY_UNPOPULARITY);
-        assertThat(productCards.get(2).getDislikes(), is(equalTo(3)));
-        for(ProductCard p: productCards)
-            assertThat(p.getDislikes(), oneOf(1,2,3));
-
-
     }
 
     @Test
-    public void sortByName() throws Exception {
+    public void shouldRightSortProductsByPopularityFromCategory() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("111", "1name", 2222, 34, 1, 1, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("333", "3name", 2222, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("222", "2name", 2222, 34, 2, 2, "xxx", category);
+        productCardDao.save(productCard);
+
+        productCard = new ProductCard("444", "4name", 4444, 34, 4, 4, "xxx", subCategory);
+        productCardDao.save(productCard);
+
+        List<ProductCard> productCards = shopManager.sortProductCard(category, SORT_BY_POPULARITY);
+        assertThat(productCards.get(2).getLikes(), is(equalTo(3)));
+        for(ProductCard p: productCards)
+            assertThat(p.getLikes(), oneOf(1,2,3));
+    }
+
+    @Test
+    public void shouldRightSortProductsByUnpopularity() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("111", "1name", 2222, 34, 1, 1, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("333", "3name", 2222, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("222", "2name", 2222, 34, 2, 2, "xxx", category);
+        productCardDao.save(productCard);
+
+        productCard = new ProductCard("444", "4name", 4444, 34, 4, 4, "xxx", subCategory);
+        productCardDao.save(productCard);
+
+        List<ProductCard> productCards = shopManager.sortProductCard(null, SORT_BY_UNPOPULARITY);
+        assertThat(productCards.get(1).getDislikes(), is(equalTo(2)));
+        for(ProductCard p: productCards)
+            assertThat(p.getDislikes(), oneOf(1,2,3,4));
+    }
+
+    @Test
+    public void shouldRightSortProductsByUnpopularityFromCategory() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("111", "1name", 2222, 34, 1, 1, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("333", "3name", 2222, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("222", "2name", 2222, 34, 2, 2, "xxx", category);
+        productCardDao.save(productCard);
+
+        productCard = new ProductCard("444", "4name", 4444, 34, 4, 4, "xxx", subCategory);
+        productCardDao.save(productCard);
+
+        List<ProductCard> productCards = shopManager.sortProductCard(category, SORT_BY_UNPOPULARITY);
+        assertThat(productCards.get(2).getDislikes(), is(equalTo(3)));
+        for(ProductCard p: productCards)
+            assertThat(p.getDislikes(), oneOf(1,2,3));
+    }
+
+    @Test
+    public void shouldCorrectSortAllProductsByName() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("111", "1name", 2222, 34, 1, 1, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("333", "3name", 2222, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("222", "2name", 2222, 34, 2, 2, "xxx", category);
+        productCardDao.save(productCard);
+
+        productCard = new ProductCard("444", "4name", 4444, 34, 4, 4, "xxx", subCategory);
+        productCardDao.save(productCard);
+
+        List<ProductCard> productCards = shopManager.sortProductCard(null, SORT_BY_NAME);
+        assertThat(productCards.get(1).getName(), is(equalTo("2name")));
+    }
+
+    @Test
+    public void shouldCorrectSortProductsByNameWithCategory() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("333", "3name", 2222, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+
+        List<ProductCard> productCards = shopManager.sortProductCard(category, SORT_BY_NAME);
+        assertEquals(productCards.get(0).getName(), "3name");
+    }
+
+    @Test
+    public void shouldCorrectSortProductsByNameReversedWithCategory() throws Exception {
 
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
@@ -452,22 +575,36 @@ public class ShopManagerTest {
         productCardDao.save(productCard);
 
 
-        List<ProductCard> productCards = shopManager.sortProductCard(null, SORT_BY_NAME);
-        assertThat(productCards.get(1).getName(), is(equalTo("2name")));
-
-        productCards = shopManager.sortProductCard(null, SORT_BY_NAME_REVERSED);
-        assertThat(productCards.get(1).getName(), is(equalTo("3name")));
-
-        productCards = shopManager.sortProductCard(category, SORT_BY_NAME);
-        assertThat(productCards.get(1).getName(), is(equalTo("2name")));
-
-        productCards = shopManager.sortProductCard(category, SORT_BY_NAME_REVERSED);
+        List<ProductCard> productCards = shopManager.sortProductCard(category, SORT_BY_NAME_REVERSED);
         assertThat(productCards.get(1).getName(), is(equalTo("2name")));
     }
 
+    @Test
+    public void shouldCorrectSortAllProductsByNameReversed() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("111", "1name", 2222, 34, 1, 1, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("333", "3name", 2222, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("222", "2name", 2222, 34, 2, 2, "xxx", category);
+        productCardDao.save(productCard);
+
+        productCard = new ProductCard("444", "4name", 4444, 34, 4, 4, "xxx", subCategory);
+        productCardDao.save(productCard);
+
+
+        List<ProductCard> productCards = shopManager.sortProductCard(null, SORT_BY_NAME_REVERSED);
+        assertThat(productCards.get(1).getName(), is(equalTo("3name")));
+    }
 
     @Test
-    public void sortByPrice() throws Exception {
+    public void mustCorrectAllSortProductsByPrice() throws Exception {
 
         Category category = new Category("desc", "name", null);
         category = categoryDao.save(category);
@@ -487,14 +624,74 @@ public class ShopManagerTest {
 
         List<ProductCard> productCards = shopManager.sortProductCard(null, SORT_BY_HIGH_PRICE);
         assertThat(productCards.get(0).getPrice(), is(equalTo(44444)));
+    }
 
-        productCards = shopManager.sortProductCard(null, SORT_BY_LOW_PRICE);
+    @Test
+    public void mustCorrectSortAllProductsByLowPrice() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("111", "1name", 11111, 34, 1, 1, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("333", "3name", 33333, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("222", "2name", 22222, 34, 2, 2, "xxx", category);
+        productCardDao.save(productCard);
+
+        productCard = new ProductCard("444", "4name", 44444, 34, 4, 4, "xxx", subCategory);
+        productCardDao.save(productCard);
+
+        List<ProductCard> productCards =  shopManager.sortProductCard(null, SORT_BY_LOW_PRICE);
         assertThat(productCards.get(0).getPrice(), is(equalTo(11111)));
+    }
 
-        productCards = shopManager.sortProductCard(category, SORT_BY_HIGH_PRICE);
+    @Test
+    public void mustCorrectSortProductsByHighPriceWithCategory() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("111", "1name", 11111, 34, 1, 1, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("333", "3name", 33333, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("222", "2name", 22222, 34, 2, 2, "xxx", category);
+        productCardDao.save(productCard);
+
+        productCard = new ProductCard("444", "4name", 44444, 34, 4, 4, "xxx", subCategory);
+        productCardDao.save(productCard);
+
+        List<ProductCard> productCards = shopManager.sortProductCard(category, SORT_BY_HIGH_PRICE);
         assertThat(productCards.get(1).getPrice(), is(equalTo(22222)));
+    }
 
-        productCards = shopManager.sortProductCard(category, SORT_BY_LOW_PRICE);
+    @Test
+    public void mustCorrectSortProductsByLowPriceWithCategory() throws Exception {
+
+        Category category = new Category("desc", "name", null);
+        category = categoryDao.save(category);
+
+        Category subCategory = new Category("desc", "name", category);
+        subCategory = categoryDao.save(subCategory);
+
+        ProductCard productCard = new ProductCard("111", "1name", 11111, 34, 1, 1, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("333", "3name", 33333, 34, 3, 3, "xxx", category);
+        productCardDao.save(productCard);
+        productCard = new ProductCard("222", "2name", 22222, 34, 2, 2, "xxx", category);
+        productCardDao.save(productCard);
+
+        productCard = new ProductCard("444", "4name", 44444, 34, 4, 4, "xxx", subCategory);
+        productCardDao.save(productCard);
+
+        List<ProductCard> productCards = shopManager.sortProductCard(category, SORT_BY_LOW_PRICE);
         assertThat(productCards.get(1).getPrice(), is(equalTo(22222)));
     }
 }

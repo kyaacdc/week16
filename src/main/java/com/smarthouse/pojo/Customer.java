@@ -1,5 +1,8 @@
 package com.smarthouse.pojo;
 
+import com.smarthouse.service.util.validators.Name;
+import com.smarthouse.service.util.validators.Phone;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -9,10 +12,12 @@ public class Customer {
     @Id
     private String email;
 
+    @Name
     private String name;
 
     private boolean subscribe;
 
+    @Phone
     private String phone;
 
     public Customer() {

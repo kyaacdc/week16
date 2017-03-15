@@ -1,4 +1,4 @@
-package com.smarthouse.util.validators;
+package com.smarthouse.service.util.validators;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

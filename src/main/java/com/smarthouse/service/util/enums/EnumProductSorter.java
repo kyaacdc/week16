@@ -1,4 +1,4 @@
-package com.smarthouse.util.enums;
+package com.smarthouse.service.util.enums;
 
 public enum EnumProductSorter {
     SORT_BY_NAME, SORT_BY_NAME_REVERSED, SORT_BY_POPULARITY,

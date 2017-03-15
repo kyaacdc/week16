@@ -2,9 +2,10 @@ package com.smarthouse.service;
 
 import com.smarthouse.repository.*;
 import com.smarthouse.pojo.*;
-import com.smarthouse.util.validators.EmailValidator;
-import com.smarthouse.util.enums.EnumProductSorter;
-import com.smarthouse.util.enums.EnumSearcher;
+import com.smarthouse.service.util.validators.EmailValidator;
+import com.smarthouse.service.util.enums.EnumProductSorter;
+import com.smarthouse.service.util.enums.EnumSearcher;
+import org.springframework.data.domain.Sort;
 
 import javax.persistence.NoResultException;
 import javax.validation.ValidationException;
@@ -21,7 +22,6 @@ public class ShopManager {
     private OrderItemDao orderItemDao;
     private VisualizationDao visualizationDao;
     private AttributeValueDao attributeValueDao;
-
 
     public ShopManager() {
     }
@@ -168,7 +168,7 @@ public class ShopManager {
      * @param criteria String is  a string for the find
      * @return Set<ProductCard> type with found set of products
      */
-    public Set<ProductCard> findProductsByCriteriaInAllPlaces(String criteria) {
+    public Set<ProductCard> findAllProductsByCriteria(String criteria) {
         Set<ProductCard> result = new LinkedHashSet<>();
 
         ProductCard productCard = productCardDao.findBySku(criteria);
@@ -252,41 +252,26 @@ public class ShopManager {
 
     public List<ProductCard> sortProductCard(Category category, EnumProductSorter criteria) {
 
-        if (category == null) {
-            switch (criteria) {
-                case SORT_BY_NAME:
-                    return productCardDao.findAllByOrderByNameAsc();
-                case SORT_BY_NAME_REVERSED:
-                    return productCardDao.findAllByOrderByNameDesc();
-                case SORT_BY_HIGH_PRICE:
-                    return productCardDao.findAllByOrderByPriceDesc();
-                case SORT_BY_LOW_PRICE:
-                    return productCardDao.findAllByOrderByPriceAsc();
-                case SORT_BY_POPULARITY:
-                    return productCardDao.findAllByOrderByLikes();
-                case SORT_BY_UNPOPULARITY:
-                    return productCardDao.findAllByOrderByDislikes();
-                default:
-                    throw new NoResultException();
-            }
-        } else {
-            switch (criteria) {
-                case SORT_BY_NAME:
-                    return productCardDao.findByCategoryOrderByNameAsc(category);
-                case SORT_BY_NAME_REVERSED:
-                    return productCardDao.findByCategoryOrderByNameDesc(category);
-                case SORT_BY_HIGH_PRICE:
-                    return productCardDao.findByCategoryOrderByPriceDesc(category);
-                case SORT_BY_LOW_PRICE:
-                    return productCardDao.findByCategoryOrderByPriceAsc(category);
-                case SORT_BY_POPULARITY:
-                    return productCardDao.findByCategoryOrderByLikes(category);
-                case SORT_BY_UNPOPULARITY:
-                    return productCardDao.findByCategoryOrderByDislikes(category);
-                default:
-                    throw new NoResultException();
-            }
+        Sort sort;
+
+        switch (criteria) {
+            case SORT_BY_NAME:
+                sort = new Sort(new Sort.Order(Sort.Direction.ASC, "name")); break;
+            case SORT_BY_NAME_REVERSED:
+                sort = new Sort(new Sort.Order(Sort.Direction.DESC, "name")); break;
+            case SORT_BY_LOW_PRICE:
+                sort = new Sort(new Sort.Order(Sort.Direction.ASC, "price")); break;
+            case SORT_BY_HIGH_PRICE:
+                sort = new Sort(new Sort.Order(Sort.Direction.DESC, "price")); break;
+            case SORT_BY_POPULARITY:
+                sort = new Sort(new Sort.Order(Sort.Direction.ASC, "likes")); break;
+            case SORT_BY_UNPOPULARITY:
+                sort = new Sort(new Sort.Order(Sort.Direction.ASC, "dislikes")); break;
+            default:
+                throw new NoResultException();
         }
+
+        return category == null ? productCardDao.findAllBy(sort) : productCardDao.findByCategory(category, sort);
     }
 
     //Private helpful methods

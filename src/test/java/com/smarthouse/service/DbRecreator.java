@@ -1,4 +1,4 @@
-package com.smarthouse.util;
+package com.smarthouse.service;
 
 import java.io.*;
 import java.sql.Connection;
@@ -32,7 +32,6 @@ public final class DbRecreator {
 
         try (Connection c = DriverManager.getConnection(urlPostgres, user, psw);
         Statement statement = c.createStatement()) {
-
             statement.executeUpdate("CREATE DATABASE testdb");
         }
         catch (SQLException e) {
@@ -51,13 +50,12 @@ public final class DbRecreator {
                 new BufferedReader(new InputStreamReader(inputStream)))
         {
             String readline;
-            while(( readline = bufferedReader.readLine()) !=null){
+            while((readline = bufferedReader.readLine()) !=null){
                 query  = query + readline;
             }
         } catch (IOException e){
             e.printStackTrace();
         }
-
 
         try (Connection c = DriverManager.getConnection(urlDb, user, psw);
         Statement statement = c.createStatement()){

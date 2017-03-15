@@ -1,4 +1,4 @@
-package com.smarthouse.util.validators;
+package com.smarthouse.service.util.validators;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
